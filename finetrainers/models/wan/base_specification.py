@@ -46,10 +46,8 @@ def _wan_eval_video_fps() -> float:
 
 
 def _wan_vbench_filename_stem(eval_style: str, ori_prompt: str) -> Optional[str]:
-    """Match VBench / VBench2 official eval naming (see VBench-master vbench / vbench2 __init__.py)."""
-    if eval_style == "vbench2":
-        stem = ori_prompt[:180]
-    elif eval_style == "vbench":
+    """Match VBench official eval naming (see VBench-master vbench __init__.py)."""
+    if eval_style == "vbench":
         stem = ori_prompt
     else:
         return None
@@ -1116,10 +1114,10 @@ class WanModelSpecification(ModelSpecification):
 
         ori_s = _batch_item(ori_prompt)
         eval_style = os.environ.get("WAN_EVAL_STYLE", "")
-        use_videorepa_names = eval_style in ("videophy", "ood", "videophy2")
+        use_videorepa_names = eval_style in ("videophy", "videophy2")
         vbench_stem_raw = _wan_vbench_filename_stem(eval_style, ori_s)
         use_vbench_names = vbench_stem_raw is not None
-        # Reserve bytes for ``-{index}.mp4`` so multi-sample (e.g. VBench2 Diversity) stays valid.
+        # Reserve bytes for ``-{index}.mp4`` so multi-sample (VBench) stays valid.
         vbench_stem = (
             _wan_fs_safe_stem(vbench_stem_raw, "-99.mp4")
             if use_vbench_names
@@ -1237,7 +1235,7 @@ class WanModelSpecification(ModelSpecification):
                 csv_fname = f"{file_stem}.mp4"
                 video_name = f"{self.save_videos_dir}/{file_stem}.mp4"
             elif use_vbench_names:
-                # VBench: ``{prompt_en}-{i}.mp4``; VBench2: ``{prompt_en[:180]}-{i}.mp4`` (VBench-master).
+                # VBench: ``{prompt_en}-{i}.mp4`` (VBench-master).
                 file_stem = vbench_stem
                 csv_fname = f"{file_stem}-0.mp4"
                 video_name = f"{self.save_videos_dir}/{csv_fname}"

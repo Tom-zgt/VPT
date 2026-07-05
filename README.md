@@ -1,7 +1,5 @@
 # VPT: Enhancing Video Physical Consistency via Role-aware Joint Training and Modality-decoupled Denoising
 
-
-
 > **Guangting Zheng**, **Haojing Chen**, Hao Li, Jingtao Zhang, Zhen Yang, Xiaosong Jia, Xue Yang, Shaofeng Zhang, Yanyong Zhang
 >
 > 1USTC   2UESTC   3Fudan University   4Georgia Tech   5SJTU
@@ -11,7 +9,6 @@
 **VPT** is a fine-tuning framework that improves the *physical consistency* of pretrained
 video diffusion models (e.g. Wan2.1-T2V) while preserving their visual quality.
 
-  
 *"A wine bottle pours a red blend into a glass." VPT produces more physically consistent motion and interactions.*
 
 > More qualitative comparisons (Wan2.1-1.3B & 14B) and reconstruction demos are on the
@@ -36,32 +33,23 @@ constraints; and **cross-step auto-guidance** to further strengthen physical dyn
 VPT achieves relative gains of **39.4% in VideoPhy SA** and **17.9% in VideoPhy PC** over
 Wan2.1-T2V-1.3B, with consistent improvements on VideoPhy-2.
 
-## Method
-
-
-| Component                        | Description                                                                                                                               |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| **Role-aware joint training**    | Groups scene entities into agents / controlled objects / passive objects / background so different physical roles are modeled explicitly. |
-| **Modality-decoupled denoising** | Visual and auxiliary (flow / seg) channels get *independent* noise levels, avoiding capacity conflicts and preserving the visual prior.   |
-| **Loss-weight decay**            | The auxiliary-loss weight decays over training, making auxiliary signals soft constraints and mitigating recursive inference error.       |
-| **Cross-step auto-guidance**     | Inference-time guidance over auxiliary streams that strengthens physical dynamics with no extra training.                                 |
-
-
 ## Results
 
 ### VideoPhy & VideoPhy-2
 
 **Overall** Semantic Adherence (SA) and Physical Commonsense (PC). VPT is applied on top of both the 1.3B and 14B Wan2.1-T2V backbones.
 
-| Model | VideoPhy SA | VideoPhy PC | VideoPhy-2 SA | VideoPhy-2 PC |
-| --- | :---: | :---: | :---: | :---: |
-| Wan2.1-T2V-1.3B | 47.7 | 21.2 | 19.3 | 53.7 |
-| &nbsp;&nbsp;+ Full Fine-tune | 45.1 | 20.9 | 18.9 | 53.6 |
-| &nbsp;&nbsp;+ VideoJAM | 49.1 | 22.1 | 20.6 | 54.0 |
-| &nbsp;&nbsp;**+ VPT (Ours)** | **66.5** | **25.0** | **22.5** | **55.1** |
-| Wan2.1-T2V-14B | 56.1 | 23.2 | 21.9 | 52.9 |
-| &nbsp;&nbsp;+ Full Fine-tune | 62.1 | 21.5 | 20.7 | 54.0 |
-| &nbsp;&nbsp;**+ VPT (Ours)** | **67.7** | **30.0** | **23.3** | **59.9** |
+
+| Model            | VideoPhy SA | VideoPhy PC | VideoPhy-2 SA | VideoPhy-2 PC |
+| ---------------- | ----------- | ----------- | ------------- | ------------- |
+| Wan2.1-T2V-1.3B  | 47.7        | 21.2        | 19.3          | 53.7          |
+| + Full Fine-tune | 45.1        | 20.9        | 18.9          | 53.6          |
+| + VideoJAM       | 49.1        | 22.1        | 20.6          | 54.0          |
+| **+ VPT (Ours)** | **66.5**    | **25.0**    | **22.5**      | **55.1**      |
+| Wan2.1-T2V-14B   | 56.1        | 23.2        | 21.9          | 52.9          |
+| + Full Fine-tune | 62.1        | 21.5        | 20.7          | 54.0          |
+| **+ VPT (Ours)** | **67.7**    | **30.0**    | **23.3**      | **59.9**      |
+
 
 On the 1.3B backbone, VPT lifts VideoPhy Overall SA 47.7 → 66.5 (**+39.4% rel.**) and PC 21.2 → 25.0 (**+17.9% rel.**); on 14B, SA 56.1 → 67.7 and PC 23.2 → 30.0. Per-category (solid–solid / solid–fluid / fluid–fluid) breakdowns are in the paper.
 
@@ -69,11 +57,13 @@ On the 1.3B backbone, VPT lifts VideoPhy Overall SA 47.7 → 66.5 (**+39.4% rel.
 
 Wan2.1-T2V-1.3B backbone, official **raw** prompts (no prompt enhancement), 81 frames @ 480×832, 16 FPS.
 
-| Metric | Wan2.1-1.3B | + Full FT | + VideoJAM | + VPT (Ours) |
-| --- | :---: | :---: | :---: | :---: |
-| **Total Score** | 76.93 | 78.71 | 78.76 | **79.58** |
-| Quality Score | 79.81 | 81.26 | 81.18 | **83.25** |
-| Semantic Score | 65.43 | 68.47 | 69.08 | 64.86 |
+
+| Metric          | Wan2.1-1.3B | + Full FT | + VideoJAM | + VPT (Ours) |
+| --------------- | ----------- | --------- | ---------- | ------------ |
+| **Total Score** | 76.93       | 78.71     | 78.76      | **79.58**    |
+| Quality Score   | 79.81       | 81.26     | 81.18      | **83.25**    |
+| Semantic Score  | 65.43       | 68.47     | 69.08      | 64.86        |
+
 
 VPT achieves the best total and quality scores. See the paper for the full per-dimension breakdown and ablations.
 
@@ -93,7 +83,7 @@ VPT/
 ├── examples/training/sft/wan/3dgs_dissolve/
 │   ├── infer.sh                  # launcher (standard torchrun, single- & multi-node)
 │   ├── training.json             # required by --dataset_config (see caveat)
-│   ├── videophy.json videophy2.json ood.json vbench*.json
+│   ├── videophy.json videophy2.json vbench.json vbench_small.json
 │   └── build_eval_prompts_from_videorepa.py
 ├── assets/teaser.gif
 └── docs/                         # project page (index.html + demo videos)
@@ -186,7 +176,7 @@ Topology env vars (all optional; single-node defaults shown):
 
 ### Benchmarks
 
-`BENCHMARK` selects the validation prompt file: `videophy | videophy2 | vbench | vbench2 | ood`.
+`BENCHMARK` selects the validation prompt file: `videophy | videophy2 | vbench`.
 This repo only **generates** videos; score them with the separate benchmark tools
 (VideoPhy / VideoPhy2 / VBench), which are intentionally not bundled here.
 

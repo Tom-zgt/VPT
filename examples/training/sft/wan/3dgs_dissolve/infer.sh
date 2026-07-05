@@ -32,14 +32,12 @@ PRETRAINED_MODEL_PATH="${PRETRAINED_MODEL_PATH:-Wan-AI/Wan2.1-T2V-1.3B-Diffusers
 LORA_WEIGHTS_PATH="${LORA_WEIGHTS_PATH:-./checkpoints/vpt_lora/pytorch_lora_weights.safetensors}"
 
 # ---- benchmark selection ---------------------------------------------------
-# videophy | videophy2 | vbench | vbench2 | ood
+# videophy | videophy2 | vbench
 BENCHMARK="${BENCHMARK:-videophy}"
 case "$BENCHMARK" in
   videophy)  VALIDATION_DATASET_FILE="${SCRIPT_DIR}/videophy.json"  ;;
   videophy2) VALIDATION_DATASET_FILE="${SCRIPT_DIR}/videophy2.json" ;;
   vbench)    VALIDATION_DATASET_FILE="${SCRIPT_DIR}/vbench.json"    ;;
-  vbench2)   VALIDATION_DATASET_FILE="${SCRIPT_DIR}/vbench2.json"   ;;
-  ood)       VALIDATION_DATASET_FILE="${SCRIPT_DIR}/ood.json"       ;;
   *) echo "Unknown BENCHMARK=$BENCHMARK" >&2; exit 2 ;;
 esac
 
