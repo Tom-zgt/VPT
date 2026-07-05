@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Env
+.venv/
+venv/
+.env
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Runtime outputs
+*.log
+wan_infer_workdir/
+outputs/
+*.ckpt
+*.safetensors
+
+# Large / generated media (keep docs/ demo assets tracked)
+/tmp/

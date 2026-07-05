@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VPT: Enhancing Video Physical Consistency via Role-aware Joint Training and Modality-decoupled Denoising</title>
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --primary: #2563eb;
+      --card-bg: #f9fafb;
+    }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container { max-width: 1180px; margin: 0 auto; padding: 36px 24px 60px; }
+    .hero { text-align: center; padding: 28px 0 20px; }
+    .title { font-size: 38px; line-height: 1.18; font-weight: 800; margin: 0 auto 18px; max-width: 1050px; }
+    .subtitle { font-size: 20px; color: var(--muted); margin: -6px auto 18px; }
+    .authors { font-size: 18px; color: var(--text); margin-bottom: 6px; }
+    .authors sup { color: var(--muted); font-weight: 600; }
+    .affiliation { font-size: 15px; color: var(--muted); margin-bottom: 8px; }
+    .note-eq { font-size: 14px; color: var(--muted); margin-bottom: 18px; }
+    .links { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+    .link-button { display: inline-block; padding: 9px 16px; border-radius: 999px; color: white; background: var(--primary); text-decoration: none; font-weight: 600; font-size: 15px; }
+    .link-button.secondary { background: #374151; }
+    section { margin-top: 42px; }
+    h2 { font-size: 28px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    h3 { font-size: 21px; margin-top: 24px; margin-bottom: 10px; }
+    .abstract { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 22px 26px; font-size: 17px; text-align: justify; }
+    .method-box { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 18px; }
+    .method-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+    .method-card h3 { margin-top: 0; font-size: 19px; }
+    .method-card p { margin-bottom: 0; color: var(--muted); }
+    .demo-block { margin-top: 34px; padding: 22px; border: 1px solid var(--border); border-radius: 18px; background: #fff; }
+    .prompt { font-size: 16px; color: var(--text); background: #f3f4f6; border-left: 4px solid var(--primary); padding: 10px 14px; border-radius: 8px; margin-bottom: 18px; }
+    .video-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .video-grid.two { grid-template-columns: repeat(2, 1fr); max-width: 820px; margin-left: auto; margin-right: auto; }
+    .video-grid.three { grid-template-columns: repeat(3, 1fr); }
+    .video-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .video-card video { width: 100%; display: block; background: #000; aspect-ratio: 1 / 1; object-fit: cover; }
+    .video-card.wide video { aspect-ratio: 16 / 9; }
+    .video-label { padding: 9px 10px; text-align: center; font-size: 14px; font-weight: 600; color: var(--text); border-top: 1px solid var(--border); background: #ffffff; }
+    .ours { color: #dc2626; }
+    .note { color: var(--muted); font-size: 15px; margin-top: 10px; }
+    table.results { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 15px; }
+    table.results th, table.results td { border: 1px solid var(--border); padding: 9px 12px; text-align: center; }
+    table.results th { background: var(--card-bg); }
+    table.results td.metric { text-align: left; }
+    table.results tr.ours { background: #fef2f2; font-weight: 600; }
+    pre.bibtex { background: #0f172a; color: #e2e8f0; border-radius: 12px; padding: 18px; overflow-x: auto; font-size: 13.5px; line-height: 1.5; }
+    footer { margin-top: 54px; text-align: center; color: var(--muted); font-size: 14px; border-top: 1px solid var(--border); padding-top: 24px; }
+    @media (max-width: 1000px) {
+      .video-grid, .video-grid.three { grid-template-columns: repeat(2, 1fr); }
+      .video-grid.two { grid-template-columns: repeat(2, 1fr); }
+      .method-box { grid-template-columns: 1fr; }
+      .title { font-size: 30px; }
+    }
+    @media (max-width: 640px) {
+      .video-grid, .video-grid.two, .video-grid.three { grid-template-columns: 1fr; }
+      .container { padding: 24px 14px 40px; }
+      .title { font-size: 25px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <header class="hero">
+      <h1 class="title">
+        Enhancing Video Physical Consistency via Role-aware Joint Training and Modality-decoupled Denoising
+      </h1>
+      <div class="subtitle"><strong>VPT</strong> &mdash; a fine-tuning framework for physically consistent video generation</div>
+
+      <div class="authors">
+        Guangting Zheng<sup>1*</sup>, Haojing Chen<sup>2*</sup>, Hao Li<sup>3</sup>, Jingtao Zhang<sup>4</sup>,
+        Zhen Yang<sup>1</sup>, Xiaosong Jia<sup>3</sup>, Xue Yang<sup>5</sup>, Shaofeng Zhang<sup>1</sup>, Yanyong Zhang<sup>1</sup>
+      </div>
+      <div class="affiliation">
+        <sup>1</sup>University of Science and Technology of China &nbsp;
+        <sup>2</sup>University of Electronic Science and Technology of China &nbsp;
+        <sup>3</sup>Fudan University &nbsp;
+        <sup>4</sup>Georgia Institute of Technology &nbsp;
+        <sup>5</sup>Shanghai Jiao Tong University
+      </div>
+      <div class="note-eq"><sup>*</sup>Equal contribution.</div>
+
+      <div class="links">
+        <a class="link-button" href="https://github.com/Tom-zgt/VPT" target="_blank" rel="noopener">Paper</a>
+        <a class="link-button secondary" href="https://github.com/Tom-zgt/VPT" target="_blank" rel="noopener">Code</a>
+        <a class="link-button secondary" href="#results">Results</a>
+        <a class="link-button secondary" href="#bibtex">BibTeX</a>
+      </div>
+    </header>
+
+    <!-- Abstract -->
+    <section>
+      <h2>Abstract</h2>
+      <div class="abstract">
+        While modern video diffusion models excel in visual fidelity, maintaining long-range physical consistency remains a formidable challenge. Conventional pixel-reconstruction objectives mainly focus on appearance details and often fail to capture the underlying dynamics of a scene. To mitigate this, recent efforts have integrated auxiliary modalities (e.g., optical flow) to introduce physics priors via joint training with video appearance. However, these methods have three main limitations: (1) they do not distinguish the different motion patterns of different entity types; (2) joint modeling of visual and auxiliary modalities can cause capacity conflicts and weaken the pretrained visual prior; and (3) auxiliary modalities may accumulate errors during inference. To address these issues, we propose <strong>VPT</strong>, a fine-tuning framework for improving physical consistency in video diffusion models. VPT introduces a role-aware signal that groups entities into agents, controlled objects, passive objects, and background, so that different physical roles can be modeled more clearly. We further propose a modality-decoupled denoising strategy, where the visual and auxiliary channels are assigned independent noise levels. Together with a loss-weight decay strategy, this design makes auxiliary modalities serve as soft constraints rather than strong dependencies, mitigating recursive prediction errors during inference. We also introduce cross-step auto-guidance to further strengthen physical dynamics. Experiments show that VPT improves physical consistency while preserving visual quality, achieving relative gains of <strong>39.4% in VideoPhy SA</strong> and <strong>17.9% in VideoPhy PC</strong> over Wan2.1-T2V-1.3B, and consistent improvements on VideoPhy-2.
+      </div>
+    </section>
+
+    <!-- Method -->
+    <section>
+      <h2>Method</h2>
+      <div class="method-box">
+        <div class="method-card">
+          <h3>Role-aware Joint Training</h3>
+          <p>A role-aware signal groups scene entities into <em>agents, controlled objects, passive objects, and background</em>, so that distinct physical motion patterns are modeled explicitly instead of being lumped together.</p>
+        </div>
+        <div class="method-card">
+          <h3>Modality-decoupled Denoising</h3>
+          <p>The visual channel and the auxiliary (flow / segmentation) channels are assigned <em>independent noise levels</em>, avoiding capacity conflicts and preserving the pretrained visual prior.</p>
+        </div>
+        <div class="method-card">
+          <h3>Loss-weight Decay</h3>
+          <p>The auxiliary-modality loss weight decays over training, turning auxiliary signals into <em>soft constraints</em> rather than hard dependencies and mitigating recursive error accumulation at inference.</p>
+        </div>
+        <div class="method-card">
+          <h3>Cross-step Auto-guidance</h3>
+          <p>An inference-time guidance over the auxiliary streams that further strengthens physical dynamics without extra training.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reconstruction examples -->
+    <section>
+      <h2>Auxiliary Modality Reconstruction</h2>
+      <p class="note">Original vs. reconstruction for the video, role, and flow modalities.</p>
+      <div class="video-grid three">
+        <div class="video-card wide">
+          <video src="reconstruction_examples/video_orignal_reconstruction_compare.mp4" controls muted loop playsinline autoplay></video>
+          <div class="video-label">Video (original vs. reconstruction)</div>
+        </div>
+        <div class="video-card wide">
+          <video src="reconstruction_examples/role_orignal_reconstruction_compare.mp4" controls muted loop playsinline autoplay></video>
+          <div class="video-label">Role (original vs. reconstruction)</div>
+        </div>
+        <div class="video-card wide">
+          <video src="reconstruction_examples/flow_orignal_reconstruction_compare.mp4" controls muted loop playsinline autoplay></video>
+          <div class="video-label">Flow (original vs. reconstruction)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Video Demos -->
+    <section>
+      <h2>Qualitative Results</h2>
+
+      <h3 style="font-size:24px; margin-top:28px;">Wan2.1-1.3B Comparisons</h3>
+      <p class="note">Each row compares the base model, the VideoJAM baseline, and our VPT method on the same prompt.</p>
+
+      <div class="demo-block">
+        <div class="prompt"><strong>Prompt:</strong> A wine bottle pours a red blend into a glass.</div>
+        <div class="video-grid">
+          <div class="video-card"><video src="videos/Wan1p3B/A_wine_bottle_pours_a_red_blend_into_a_glass.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-1.3B</div></div>
+          <div class="video-card"><video src="videos/VideoJAM/A_wine_bottle_pours_a_red_blend_into_a_glass.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-1.3B + VideoJAM</div></div>
+          <div class="video-card"><video src="videos/VPT/A_wine_bottle_pours_a_red_blend_into_a_glass.mp4" controls muted loop playsinline></video><div class="video-label ours">Wan2.1-1.3B + VPT (Ours)</div></div>
+        </div>
+      </div>
+
+      <div class="demo-block">
+        <div class="prompt"><strong>Prompt:</strong> An apple falls into a vat of red wine.</div>
+        <div class="video-grid">
+          <div class="video-card"><video src="videos/Wan1p3B/An_apple_falls_into_a_vat_of_red_wine.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-1.3B</div></div>
+          <div class="video-card"><video src="videos/VideoJAM/An_apple_falls_into_a_vat_of_red_wine.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-1.3B + VideoJAM</div></div>
+          <div class="video-card"><video src="videos/VPT/An_apple_falls_into_a_vat_of_red_wine.mp4" controls muted loop playsinline></video><div class="video-label ours">Wan2.1-1.3B + VPT (Ours)</div></div>
+        </div>
+      </div>
+
+      <div class="demo-block">
+        <div class="prompt"><strong>Prompt:</strong> A coffee stirrer swirling iced coffee in a glass.</div>
+        <div class="video-grid">
+          <div class="video-card"><video src="videos/Wan1p3B/A_coffee_stirrer_swirling_iced_coffee_in_a_glass.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-1.3B</div></div>
+          <div class="video-card"><video src="videos/VideoJAM/A_coffee_stirrer_swirling_iced_coffee_in_a_glass.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-1.3B + VideoJAM</div></div>
+          <div class="video-card"><video src="videos/VPT/A_coffee_stirrer_swirling_iced_coffee_in_a_glass.mp4" controls muted loop playsinline></video><div class="video-label ours">Wan2.1-1.3B + VPT (Ours)</div></div>
+        </div>
+      </div>
+
+      <div class="demo-block">
+        <div class="prompt"><strong>Prompt:</strong> A drum vibrating from the beating stick.</div>
+        <div class="video-grid">
+          <div class="video-card"><video src="videos/Wan1p3B/A_drum_vibrating_from_the_beating_stick.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-1.3B</div></div>
+          <div class="video-card"><video src="videos/VideoJAM/A_drum_vibrating_from_the_beating_stick.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-1.3B + VideoJAM</div></div>
+          <div class="video-card"><video src="videos/VPT/A_drum_vibrating_from_the_beating_stick.mp4" controls muted loop playsinline></video><div class="video-label ours">Wan2.1-1.3B + VPT (Ours)</div></div>
+        </div>
+      </div>
+
+      <div class="demo-block">
+        <div class="prompt"><strong>Prompt:</strong> A leaf falls delicately into a slow-moving river.</div>
+        <div class="video-grid">
+          <div class="video-card"><video src="videos/Wan1p3B/A_leaf_falls_delicately_into_a_slow-moving_river.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-1.3B</div></div>
+          <div class="video-card"><video src="videos/VideoJAM/A_leaf_falls_delicately_into_a_slow-moving_river.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-1.3B + VideoJAM</div></div>
+          <div class="video-card"><video src="videos/VPT/A_leaf_falls_delicately_into_a_slow-moving_river.mp4" controls muted loop playsinline></video><div class="video-label ours">Wan2.1-1.3B + VPT (Ours)</div></div>
+        </div>
+      </div>
+
+      <div class="demo-block">
+        <div class="prompt"><strong>Prompt:</strong> A metal spoon stirs soda in a glass.</div>
+        <div class="video-grid">
+          <div class="video-card"><video src="videos/Wan1p3B/A_metal_spoon_stirs_soda_in_a_glass.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-1.3B</div></div>
+          <div class="video-card"><video src="videos/VideoJAM/A_metal_spoon_stirs_soda_in_a_glass.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-1.3B + VideoJAM</div></div>
+          <div class="video-card"><video src="videos/VPT/A_metal_spoon_stirs_soda_in_a_glass.mp4" controls muted loop playsinline></video><div class="video-label ours">Wan2.1-1.3B + VPT (Ours)</div></div>
+        </div>
+      </div>
+
+      <div class="demo-block">
+        <div class="prompt"><strong>Prompt:</strong> A paintbrush dipping into a pot of paint.</div>
+        <div class="video-grid">
+          <div class="video-card"><video src="videos/Wan1p3B/A_paintbrush_dipping_into_a_pot_of_paint.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-1.3B</div></div>
+          <div class="video-card"><video src="videos/VideoJAM/A_paintbrush_dipping_into_a_pot_of_paint.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-1.3B + VideoJAM</div></div>
+          <div class="video-card"><video src="videos/VPT/A_paintbrush_dipping_into_a_pot_of_paint.mp4" controls muted loop playsinline></video><div class="video-label ours">Wan2.1-1.3B + VPT (Ours)</div></div>
+        </div>
+      </div>
+
+      <div class="demo-block">
+        <div class="prompt"><strong>Prompt:</strong> A pebble drops into a clear puddle creating ripples.</div>
+        <div class="video-grid">
+          <div class="video-card"><video src="videos/Wan1p3B/A_pebble_drops_into_a_clear_puddle_creating_ripples.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-1.3B</div></div>
+          <div class="video-card"><video src="videos/VideoJAM/A_pebble_drops_into_a_clear_puddle_creating_ripples%20.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-1.3B + VideoJAM</div></div>
+          <div class="video-card"><video src="videos/VPT/A_pebble_drops_into_a_clear_puddle_creating_ripples%20.mp4" controls muted loop playsinline></video><div class="video-label ours">Wan2.1-1.3B + VPT (Ours)</div></div>
+        </div>
+      </div>
+
+      <h3 style="font-size:24px; margin-top:42px;">Wan2.1-14B Comparisons</h3>
+      <p class="note">Each row compares the base model with our VPT method on the same prompt.</p>
+
+      <div class="demo-block">
+        <div class="prompt"><strong>Prompt:</strong> A pebble drops into a clear puddle creating ripples.</div>
+        <div class="video-grid two">
+          <div class="video-card"><video src="videos/Wan14B/A_pebble_drops_into_a_clear_puddle_creating_ripples.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-14B</div></div>
+          <div class="video-card"><video src="videos/VPT14B/A_pebble_drops_into_a_clear_puddle_creating_ripples.mp4" controls muted loop playsinline></video><div class="video-label ours">Wan2.1-14B + VPT (Ours)</div></div>
+        </div>
+      </div>
+
+      <div class="demo-block">
+        <div class="prompt"><strong>Prompt:</strong> A plastic spoon spinning in a cup of coffee.</div>
+        <div class="video-grid two">
+          <div class="video-card"><video src="videos/Wan14B/A_plastic_spoon_spinning_in_a_cup_of_coffee.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-14B</div></div>
+          <div class="video-card"><video src="videos/VPT14B/A_plastic_spoon_spinning_in_a_cup_of_coffee.mp4" controls muted loop playsinline></video><div class="video-label ours">Wan2.1-14B + VPT (Ours)</div></div>
+        </div>
+      </div>
+
+      <div class="demo-block">
+        <div class="prompt"><strong>Prompt:</strong> A sharp razor shaves the facial hair close.</div>
+        <div class="video-grid two">
+          <div class="video-card"><video src="videos/Wan14B/A_sharp_razor_shaves_the_facial_hair_close.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-14B</div></div>
+          <div class="video-card"><video src="videos/VPT14B/A_sharp_razor_shaves_the_facial_hair_close.mp4" controls muted loop playsinline></video><div class="video-label ours">Wan2.1-14B + VPT (Ours)</div></div>
+        </div>
+      </div>
+
+      <div class="demo-block">
+        <div class="prompt"><strong>Prompt:</strong> A spoon scoops creamy soup from a pot.</div>
+        <div class="video-grid two">
+          <div class="video-card"><video src="videos/Wan14B/A_spoon_scoops_creamy_soup_from_a_pot.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-14B</div></div>
+          <div class="video-card"><video src="videos/VPT14B/A_spoon_scoops_creamy_soup_from_a_pot.mp4" controls muted loop playsinline></video><div class="video-label ours">Wan2.1-14B + VPT (Ours)</div></div>
+        </div>
+      </div>
+
+      <div class="demo-block">
+        <div class="prompt"><strong>Prompt:</strong> A teaspoon stirs sugar into a cup of coffee.</div>
+        <div class="video-grid two">
+          <div class="video-card"><video src="videos/Wan14B/A_teaspoon_stirs_sugar_into_a_cup_of_coffee.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-14B</div></div>
+          <div class="video-card"><video src="videos/VPT14B/A_teaspoon_stirs_sugar_into_a_cup_of_coffee.mp4" controls muted loop playsinline></video><div class="video-label ours">Wan2.1-14B + VPT (Ours)</div></div>
+        </div>
+      </div>
+
+      <div class="demo-block">
+        <div class="prompt"><strong>Prompt:</strong> Hook clinging onto a fish.</div>
+        <div class="video-grid two">
+          <div class="video-card"><video src="videos/Wan14B/Hook_clinging_onto_a_fish.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-14B</div></div>
+          <div class="video-card"><video src="videos/VPT14B/Hook_clinging_onto_a_fish.mp4" controls muted loop playsinline></video><div class="video-label ours">Wan2.1-14B + VPT (Ours)</div></div>
+        </div>
+      </div>
+
+      <div class="demo-block">
+        <div class="prompt"><strong>Prompt:</strong> Toothpaste squirting from a tube onto a brush.</div>
+        <div class="video-grid two">
+          <div class="video-card"><video src="videos/Wan14B/Toothpaste_squirting_from_a_tube_onto_a_brush.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-14B</div></div>
+          <div class="video-card"><video src="videos/VPT14B/Toothpaste_squirting_from_a_tube_onto_a_brush.mp4" controls muted loop playsinline></video><div class="video-label ours">Wan2.1-14B + VPT (Ours)</div></div>
+        </div>
+      </div>
+
+      <div class="demo-block">
+        <div class="prompt"><strong>Prompt:</strong> A bat swinging and hitting a baseball.</div>
+        <div class="video-grid two">
+          <div class="video-card"><video src="videos/Wan14B/A_bat_swinging_and_hitting_a_baseball.mp4" controls muted loop playsinline></video><div class="video-label">Wan2.1-14B</div></div>
+          <div class="video-card"><video src="videos/VPT14B/A_bat_swinging_and_hitting_a_baseball.mp4" controls muted loop playsinline></video><div class="video-label ours">Wan2.1-14B + VPT (Ours)</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results -->
+    <section id="results">
+      <h2>Quantitative Results</h2>
+      <p class="note">VideoPhy (SA = Semantic Adherence, PC = Physical Commonsense). VPT is applied on top of Wan2.1-T2V-1.3B.</p>
+      <table class="results">
+        <thead>
+          <tr><th class="metric">Model</th><th>VideoPhy SA</th><th>VideoPhy PC</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="metric">Wan2.1-T2V-1.3B (base)</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr class="ours"><td class="metric">+ VPT (Ours)</td><td>+39.4% (rel.)</td><td>+17.9% (rel.)</td></tr>
+        </tbody>
+      </table>
+      <p class="note">VPT also yields consistent improvements on VideoPhy-2. See the paper for full tables and ablations.</p>
+    </section>
+
+    <!-- BibTeX -->
+    <section id="bibtex">
+      <h2>BibTeX</h2>
+      <pre class="bibtex">@article{zheng2026vpt,
+  title   = {Enhancing Video Physical Consistency via Role-aware Joint Training and Modality-decoupled Denoising},
+  author  = {Zheng, Guangting and Chen, Haojing and Li, Hao and Zhang, Jingtao and
+             Yang, Zhen and Jia, Xiaosong and Yang, Xue and Zhang, Shaofeng and Zhang, Yanyong},
+  journal = {arXiv preprint},
+  year    = {2026}
+}</pre>
+    </section>
+
+    <footer>
+      Project page for <strong>VPT</strong>. Code: <a href="https://github.com/Tom-zgt/VPT" target="_blank" rel="noopener">github.com/Tom-zgt/VPT</a>
+    </footer>
+
+  </div>
+</body>
+</html>
