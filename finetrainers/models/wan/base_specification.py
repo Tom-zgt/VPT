@@ -32,8 +32,6 @@ from finetrainers.processors import ProcessorMixin, T5Processor
 from finetrainers.typing import ArtifactType, SchedulerType
 from finetrainers.utils import get_non_null_items, safetensors_torch_save_function
 import csv
-import tempfile
-import shutil
 logger = get_logger()
 
 
@@ -57,7 +55,7 @@ def _wan_vbench_filename_stem(eval_style: str, ori_prompt: str) -> Optional[str]
 def _wan_fs_safe_stem(stem: str, name_suffix: str) -> str:
     """
     Keep a single path component (stem + name_suffix) within a byte budget so create/open
-    does not fail on ext4/HDFS (commonly 255 bytes per component).
+    does not fail on the local filesystem (commonly 255 bytes per component).
 
     name_suffix examples: '.mp4', '-0.mp4', '-12.mp4'.
     Override with WAN_MAX_VIDEO_BASENAME_BYTES (default 248 to leave margin under 255).
@@ -88,8 +86,7 @@ def _wan_video_record_csv_path(save_videos_dir: str) -> Optional[str]:
     Where to append all_videos_record.csv. None = skip (WAN_DISABLE_VIDEO_RECORD_CSV).
 
     WAN_VIDEO_RECORD_CSV_PATH: absolute path to a .csv file, or a directory (we append
-    all_videos_record.csv there). Use a local path when HDFS FUSE rejects append on
-    the video output directory.
+    all_videos_record.csv there).
     """
     flag = os.environ.get("WAN_DISABLE_VIDEO_RECORD_CSV", "").strip().lower()
     if flag in ("1", "true", "yes", "on"):
@@ -1194,21 +1191,17 @@ class WanModelSpecification(ModelSpecification):
             video_name = ""
             os.makedirs(self.save_videos_dir, exist_ok=True)
             try:
-                with tempfile.NamedTemporaryFile(suffix=".mp4") as tmp:
-                    local_path = tmp.name
-                    imageio.mimsave(local_path, video, fps=eval_fps, quality=10)
-                    max_seqlen = 240
-                    log_prompt = prompt_s
-                    if len(log_prompt) > max_seqlen:
-                        log_prompt = log_prompt[:max_seqlen]
-                    if use_vbench_names:
-                        save_stem = vbench_stem
-                    else:
-                        save_stem = _wan_fs_safe_stem(log_prompt, f"-{index}.mp4")
-                    video_name = f"{self.save_videos_dir}/{save_stem}-{index}.mp4"
-                    os.makedirs(self.save_videos_dir, exist_ok=True)
-                    shutil.copy(local_path, video_name)
-                print(f"✨ 视频已同步至 HDFS: {video_name}")
+                max_seqlen = 240
+                log_prompt = prompt_s
+                if len(log_prompt) > max_seqlen:
+                    log_prompt = log_prompt[:max_seqlen]
+                if use_vbench_names:
+                    save_stem = vbench_stem
+                else:
+                    save_stem = _wan_fs_safe_stem(log_prompt, f"-{index}.mp4")
+                video_name = f"{self.save_videos_dir}/{save_stem}-{index}.mp4"
+                imageio.mimsave(video_name, video, fps=eval_fps, quality=10)
+                print(f"✨ 视频已保存到本地: {video_name}")
             except Exception:
                 print(f"can not save {video_name}")
 
@@ -1246,25 +1239,13 @@ class WanModelSpecification(ModelSpecification):
                 )
                 csv_fname = f"{file_stem}.mp4"
                 video_name = f"{self.save_videos_dir}/{file_stem}.mp4"
-            # timestamp = time.strftime("%Y%m%d-%H%M%S")
-            # video_name = f"{self.save_videos_dir}/{timestamp}_{prompt[0].replace(' ','_')}.mp4"
-            # imageio.mimsave(video_name, video, fps=8, quality=10)
-            # 1. 临时本地路径
             try:
-                with tempfile.NamedTemporaryFile(suffix='.mp4') as tmp:
-                    local_path = tmp.name
-                    
-                    # 2. 写入本地磁盘（支持随机读写）
-                    imageio.mimsave(local_path, video, fps=eval_fps, quality=10)
-                    # 3. 移动到 HDFS 挂载点
-                    # final_hdfs_path = os.path.join(self.save_videos_dir, video_filename)
-                    os.makedirs(self.save_videos_dir, exist_ok=True)
-                    shutil.copy(local_path, video_name)
-            except:
+                imageio.mimsave(video_name, video, fps=eval_fps, quality=10)
+            except Exception:
                 print(f"can not save {video_name}")
                 pass
-            
-            print(f"✨ 视频已同步至 HDFS: {video_name}")
+
+            print(f"✨ 视频已保存到本地: {video_name}")
             csv_target = _wan_video_record_csv_path(self.save_videos_dir)
             if csv_target:
                 try:

@@ -111,28 +111,31 @@
       </div>
     </section>
 
-    <!-- Method -->
-    <section>
-      <h2>Method</h2>
-      <div class="method-box">
-        <div class="method-card">
-          <h3>Role-aware Joint Training</h3>
-          <p>A role-aware signal groups scene entities into <em>agents, controlled objects, passive objects, and background</em>, so that distinct physical motion patterns are modeled explicitly instead of being lumped together.</p>
-        </div>
-        <div class="method-card">
-          <h3>Modality-decoupled Denoising</h3>
-          <p>The visual channel and the auxiliary (flow / segmentation) channels are assigned <em>independent noise levels</em>, avoiding capacity conflicts and preserving the pretrained visual prior.</p>
-        </div>
-        <div class="method-card">
-          <h3>Loss-weight Decay</h3>
-          <p>The auxiliary-modality loss weight decays over training, turning auxiliary signals into <em>soft constraints</em> rather than hard dependencies and mitigating recursive error accumulation at inference.</p>
-        </div>
-        <div class="method-card">
-          <h3>Cross-step Auto-guidance</h3>
-          <p>An inference-time guidance over the auxiliary streams that further strengthens physical dynamics without extra training.</p>
-        </div>
-      </div>
-    </section>
+  <!-- Method -->
+<section>
+  <h2>Method</h2>
+  
+  <!-- 这个容器用来辅助定位 -->
+  <div style="width: 100%; position: relative;">
+    <img 
+      src="../assets/VPT_motion_tune_method.jpg" 
+      alt="Method Architecture" 
+      style="
+        display: block;
+        /* 以下是突破容器的核心 CSS */
+        width: 70vw;       /* 宽度等于视口（浏览器窗口）的 100% */
+        position: relative;
+        left: 50%;          /* 移到父容器中间 */
+        transform: translateX(-50%); /* 向左移自身宽度的 50%，实现完美的视口居中 */
+        
+        /* 其他样式 */
+        max-width: none;    /* 防止其他 CSS 限制最大宽度 */
+        height: auto;
+      "
+    >
+  </div>
+  
+</section>
 
     <!-- Reconstruction examples -->
     <section>
