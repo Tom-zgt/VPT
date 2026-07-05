@@ -85,6 +85,9 @@ VPT/
 │   ├── training.json             # required by --dataset_config (see caveat)
 │   ├── videophy.json videophy2.json vbench.json vbench_small.json
 │   └── build_eval_prompts_from_videorepa.py
+├── data_preparation/             # build training data (flow + role maps) — see its README
+│   ├── raft_flow/                # RAFT optical-flow extraction
+│   └── role_map/                 # Qwen3-VL + SAM3 role/semantic maps
 ├── assets/teaser.gif
 └── docs/                         # project page (index.html + demo videos)
 ```
@@ -126,6 +129,30 @@ You need two things:
 
 - **Base model**: `Wan-AI/Wan2.1-T2V-1.3B-Diffusers` (a HuggingFace repo id or a local dir).
 - **VPT LoRA checkpoint**: the trained `pytorch_lora_weights.safetensors`.
+
+## Dataset & data preparation
+
+VPT is fine-tuned on the **[WISA-80K](https://huggingface.co/datasets/qihoo360/WISA-80K)**
+dataset. Download the clips from:
+
+<https://huggingface.co/datasets/qihoo360/WISA-80K/tree/dddbd5683581c2ebf0b463e2b1c3342b2094bfb3/data/videos>
+
+```bash
+huggingface-cli download qihoo360/WISA-80K --repo-type dataset \
+  --revision dddbd5683581c2ebf0b463e2b1c3342b2094bfb3 \
+  --include "data/videos/*" --local-dir ./WISA-80K
+mkdir -p data/videos_data/videos
+for z in ./WISA-80K/data/videos/*.zip; do unzip -n "$z" -d data/videos_data/videos/; done
+```
+
+Each clip is augmented with two auxiliary modalities before training:
+
+- **Optical flow** via RAFT — `data_preparation/raft_flow/`
+- **Role / semantic maps** via Qwen3-VL + SAM3 — `data_preparation/role_map/`
+
+Both are encoded by the same Wan video VAE, forming the 9-channel joint latent
+`[video ⊕ flow ⊕ role]`. Full step-by-step instructions are in
+[`data_preparation/README.md`](data_preparation/README.md).
 
 ## Usage
 
