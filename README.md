@@ -16,6 +16,8 @@ VPT vs. Wan2.1-1.3B vs. VideoJAM
 
 *"A wine bottle pours a red blend into a glass." VPT produces more physically consistent motion and interactions.*
 
+![Qualitative comparisons](./assets/teaser.gif)
+
 > More qualitative comparisons (Wan2.1-1.3B & 14B) and reconstruction demos are on the
 > **[project page](docs/index.html)** — open `docs/index.html` in a browser, or host `docs/` with GitHub Pages.
 
