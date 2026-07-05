@@ -304,17 +304,48 @@
     <!-- Results -->
     <section id="results">
       <h2>Quantitative Results</h2>
-      <p class="note">VideoPhy (SA = Semantic Adherence, PC = Physical Commonsense). VPT is applied on top of Wan2.1-T2V-1.3B.</p>
+
+      <h3 style="margin-top:8px;">VideoPhy &amp; VideoPhy-2</h3>
+      <p class="note">Overall Semantic Adherence (SA) and Physical Commonsense (PC). VPT is applied on both the 1.3B and 14B Wan2.1-T2V backbones.</p>
       <table class="results">
         <thead>
-          <tr><th class="metric">Model</th><th>VideoPhy SA</th><th>VideoPhy PC</th></tr>
+          <tr><th class="metric">Model</th><th>VideoPhy SA</th><th>VideoPhy PC</th><th>VideoPhy-2 SA</th><th>VideoPhy-2 PC</th></tr>
         </thead>
         <tbody>
-          <tr><td class="metric">Wan2.1-T2V-1.3B (base)</td><td>&mdash;</td><td>&mdash;</td></tr>
-          <tr class="ours"><td class="metric">+ VPT (Ours)</td><td>+39.4% (rel.)</td><td>+17.9% (rel.)</td></tr>
+          <tr><td class="metric">Wan2.1-T2V-1.3B</td><td>47.7</td><td>21.2</td><td>19.3</td><td>53.7</td></tr>
+          <tr><td class="metric">&nbsp;&nbsp;+ Full Fine-tune</td><td>45.1</td><td>20.9</td><td>18.9</td><td>53.6</td></tr>
+          <tr><td class="metric">&nbsp;&nbsp;+ VideoJAM</td><td>49.1</td><td>22.1</td><td>20.6</td><td>54.0</td></tr>
+          <tr class="ours"><td class="metric">&nbsp;&nbsp;+ VPT (Ours)</td><td>66.5</td><td>25.0</td><td>22.5</td><td>55.1</td></tr>
+          <tr><td class="metric">Wan2.1-T2V-14B</td><td>56.1</td><td>23.2</td><td>21.9</td><td>52.9</td></tr>
+          <tr><td class="metric">&nbsp;&nbsp;+ Full Fine-tune</td><td>62.1</td><td>21.5</td><td>20.7</td><td>54.0</td></tr>
+          <tr class="ours"><td class="metric">&nbsp;&nbsp;+ VPT (Ours)</td><td>67.7</td><td>30.0</td><td>23.3</td><td>59.9</td></tr>
         </tbody>
       </table>
-      <p class="note">VPT also yields consistent improvements on VideoPhy-2. See the paper for full tables and ablations.</p>
+
+      <h3 style="margin-top:26px;">VBench</h3>
+      <p class="note">Wan2.1-T2V-1.3B backbone, official raw prompts (no prompt enhancement), 81 frames @ 480&times;832, 16 FPS.</p>
+      <table class="results">
+        <thead>
+          <tr><th class="metric">Dimension</th><th>Wan2.1-1.3B</th><th>+ Full FT</th><th>+ VideoJAM</th><th>+ VPT (Ours)</th></tr>
+        </thead>
+        <tbody>
+          <tr class="ours"><td class="metric">Total Score</td><td>76.93</td><td>78.71</td><td>78.76</td><td>79.58</td></tr>
+          <tr><td class="metric">Quality Score</td><td>79.81</td><td>81.26</td><td>81.18</td><td>83.25</td></tr>
+          <tr><td class="metric">Semantic Score</td><td>65.43</td><td>68.47</td><td>69.08</td><td>64.86</td></tr>
+          <tr><td class="metric">Subject Consistency</td><td>91.83</td><td>93.59</td><td>91.51</td><td>92.65</td></tr>
+          <tr><td class="metric">Background Consistency</td><td>94.71</td><td>95.81</td><td>96.01</td><td>97.27</td></tr>
+          <tr><td class="metric">Temporal Flickering</td><td>99.17</td><td>99.36</td><td>99.13</td><td>98.64</td></tr>
+          <tr><td class="metric">Motion Smoothness</td><td>96.51</td><td>97.21</td><td>96.05</td><td>97.85</td></tr>
+          <tr><td class="metric">Dynamic Degree</td><td>65.00</td><td>54.08</td><td>73.88</td><td>70.83</td></tr>
+          <tr><td class="metric">Object Class</td><td>76.09</td><td>79.90</td><td>79.22</td><td>73.43</td></tr>
+          <tr><td class="metric">Color</td><td>89.93</td><td>88.57</td><td>88.92</td><td>86.99</td></tr>
+          <tr><td class="metric">Human Action</td><td>74.60</td><td>78.98</td><td>79.20</td><td>74.80</td></tr>
+          <tr><td class="metric">Multiple Objects</td><td>53.66</td><td>58.20</td><td>59.66</td><td>51.92</td></tr>
+          <tr><td class="metric">Scene</td><td>20.03</td><td>28.55</td><td>28.34</td><td>20.13</td></tr>
+          <tr><td class="metric">Spatial Relationship</td><td>62.37</td><td>63.31</td><td>66.17</td><td>73.35</td></tr>
+        </tbody>
+      </table>
+      <p class="note">VPT achieves the best overall and quality scores, with clear gains in background consistency, motion smoothness, and spatial relationship. See the paper for full tables and ablations.</p>
     </section>
 
     <!-- BibTeX -->

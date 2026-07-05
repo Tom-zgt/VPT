@@ -1,24 +1,18 @@
 # VPT: Enhancing Video Physical Consistency via Role-aware Joint Training and Modality-decoupled Denoising
 
-<p align="center">
-  <a href="https://github.com/Tom-zgt/VPT"><img alt="Code" src="https://img.shields.io/badge/Code-GitHub-black?logo=github"></a>
-  <a href="https://github.com/Tom-zgt/VPT"><img alt="Paper" src="https://img.shields.io/badge/Paper-arXiv-b31b1b?logo=arxiv"></a>
-  <a href="docs/index.html"><img alt="Project Page" src="https://img.shields.io/badge/Project-Page-2563eb"></a>
-  <img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-green">
-</p>
 
-> **Guangting Zheng**\*, **Haojing Chen**\*, Hao Li, Jingtao Zhang, Zhen Yang, Xiaosong Jia, Xue Yang, Shaofeng Zhang, Yanyong Zhang
-> <br/><sup>1</sup>USTC &nbsp; <sup>2</sup>UESTC &nbsp; <sup>3</sup>Fudan University &nbsp; <sup>4</sup>Georgia Tech &nbsp; <sup>5</sup>SJTU
-> <br/>\*Equal contribution
+
+> **Guangting Zheng**, **Haojing Chen**, Hao Li, Jingtao Zhang, Zhen Yang, Xiaosong Jia, Xue Yang, Shaofeng Zhang, Yanyong Zhang
+>
+> 1USTC   2UESTC   3Fudan University   4Georgia Tech   5SJTU
+>
+> Equal contribution
 
 **VPT** is a fine-tuning framework that improves the *physical consistency* of pretrained
 video diffusion models (e.g. Wan2.1-T2V) while preserving their visual quality.
 
-<p align="center">
-  <img src="assets/teaser.gif" width="100%" alt="VPT vs. Wan2.1-1.3B vs. VideoJAM — 'A wine bottle pours a red blend into a glass'">
-  <br/>
-  <em>"A wine bottle pours a red blend into a glass." VPT produces more physically consistent motion and interactions.</em>
-</p>
+  
+*"A wine bottle pours a red blend into a glass." VPT produces more physically consistent motion and interactions.*
 
 > More qualitative comparisons (Wan2.1-1.3B & 14B) and reconstruction demos are on the
 > **[project page](docs/index.html)** — open `docs/index.html` in a browser, or host `docs/` with GitHub Pages.
@@ -44,23 +38,55 @@ Wan2.1-T2V-1.3B, with consistent improvements on VideoPhy-2.
 
 ## Method
 
-| Component | Description |
-| --- | --- |
-| **Role-aware joint training** | Groups scene entities into agents / controlled objects / passive objects / background so different physical roles are modeled explicitly. |
-| **Modality-decoupled denoising** | Visual and auxiliary (flow / seg) channels get *independent* noise levels, avoiding capacity conflicts and preserving the visual prior. |
-| **Loss-weight decay** | The auxiliary-loss weight decays over training, making auxiliary signals soft constraints and mitigating recursive inference error. |
-| **Cross-step auto-guidance** | Inference-time guidance over auxiliary streams that strengthens physical dynamics with no extra training. |
+
+| Component                        | Description                                                                                                                               |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| **Role-aware joint training**    | Groups scene entities into agents / controlled objects / passive objects / background so different physical roles are modeled explicitly. |
+| **Modality-decoupled denoising** | Visual and auxiliary (flow / seg) channels get *independent* noise levels, avoiding capacity conflicts and preserving the visual prior.   |
+| **Loss-weight decay**            | The auxiliary-loss weight decays over training, making auxiliary signals soft constraints and mitigating recursive inference error.       |
+| **Cross-step auto-guidance**     | Inference-time guidance over auxiliary streams that strengthens physical dynamics with no extra training.                                 |
+
 
 ## Results
 
-VideoPhy — SA (Semantic Adherence) and PC (Physical Commonsense), VPT applied on Wan2.1-T2V-1.3B:
+### VideoPhy & VideoPhy-2
 
-| Model | VideoPhy SA | VideoPhy PC |
-| --- | :---: | :---: |
-| Wan2.1-T2V-1.3B (base) | — | — |
-| **+ VPT (Ours)** | **+39.4%** (rel.) | **+17.9%** (rel.) |
+**Overall** Semantic Adherence (SA) and Physical Commonsense (PC). VPT is applied on top of both the 1.3B and 14B Wan2.1-T2V backbones.
 
-VPT also improves VideoPhy-2. See the paper for full tables and ablations.
+| Model | VideoPhy SA | VideoPhy PC | VideoPhy-2 SA | VideoPhy-2 PC |
+| --- | :---: | :---: | :---: | :---: |
+| Wan2.1-T2V-1.3B | 47.7 | 21.2 | 19.3 | 53.7 |
+| &nbsp;&nbsp;+ Full Fine-tune | 45.1 | 20.9 | 18.9 | 53.6 |
+| &nbsp;&nbsp;+ VideoJAM | 49.1 | 22.1 | 20.6 | 54.0 |
+| &nbsp;&nbsp;**+ VPT (Ours)** | **66.5** | **25.0** | **22.5** | **55.1** |
+| Wan2.1-T2V-14B | 56.1 | 23.2 | 21.9 | 52.9 |
+| &nbsp;&nbsp;+ Full Fine-tune | 62.1 | 21.5 | 20.7 | 54.0 |
+| &nbsp;&nbsp;**+ VPT (Ours)** | **67.7** | **30.0** | **23.3** | **59.9** |
+
+On the 1.3B backbone, VPT lifts VideoPhy Overall SA 47.7 → 66.5 (**+39.4% rel.**) and PC 21.2 → 25.0 (**+17.9% rel.**); on 14B, SA 56.1 → 67.7 and PC 23.2 → 30.0. Per-category (solid–solid / solid–fluid / fluid–fluid) breakdowns are in the paper.
+
+### VBench
+
+Wan2.1-T2V-1.3B backbone, official **raw** prompts (no prompt enhancement), 81 frames @ 480×832, 16 FPS.
+
+| Dimension | Wan2.1-1.3B | + Full FT | + VideoJAM | + VPT (Ours) |
+| --- | :---: | :---: | :---: | :---: |
+| **Total Score** | 76.93 | 78.71 | 78.76 | **79.58** |
+| Quality Score | 79.81 | 81.26 | 81.18 | **83.25** |
+| Semantic Score | 65.43 | 68.47 | 69.08 | 64.86 |
+| Subject Consistency | 91.83 | 93.59 | 91.51 | 92.65 |
+| Background Consistency | 94.71 | 95.81 | 96.01 | **97.27** |
+| Temporal Flickering | 99.17 | 99.36 | 99.13 | 98.64 |
+| Motion Smoothness | 96.51 | 97.21 | 96.05 | **97.85** |
+| Dynamic Degree | 65.00 | 54.08 | 73.88 | 70.83 |
+| Object Class | 76.09 | 79.90 | 79.22 | 73.43 |
+| Color | 89.93 | 88.57 | 88.92 | 86.99 |
+| Human Action | 74.60 | 78.98 | 79.20 | 74.80 |
+| Multiple Objects | 53.66 | 58.20 | 59.66 | 51.92 |
+| Scene | 20.03 | 28.55 | 28.34 | 20.13 |
+| Spatial Relationship | 62.37 | 63.31 | 66.17 | **73.35** |
+
+VPT achieves the best overall and quality scores, with clear gains in background consistency, motion smoothness, and spatial relationship — i.e. more stable dynamics and better object-relation modeling. See the paper for full tables and ablations.
 
 ## Repository layout
 
@@ -99,7 +125,7 @@ train.py → finetrainers SFT trainer → _validate()
 
 Role/flow/seg (triple-discrete) timestep conditioning is enabled **automatically**:
 `CustomWanPipeline` detects `cond_proj` weights in the LoRA checkpoint and swaps in
-`WanTripleDiscreteTimeTextImageEmbedding`. No `multi_timestep_*` flag is needed at inference.
+`WanTripleDiscreteTimeTextImageEmbedding`. No `multi_timestep_`* flag is needed at inference.
 
 > **Caveat:** even with `--train_steps 1`, the trainer still initializes the training
 > dataloader (`--dataset_config training.json`) and consumes one batch to load the
@@ -118,6 +144,7 @@ pip install -U "transformers>=4.49.0,<5.0.0" "accelerate>=0.34.0" \
 ```
 
 You need two things:
+
 - **Base model**: `Wan-AI/Wan2.1-T2V-1.3B-Diffusers` (a HuggingFace repo id or a local dir).
 - **VPT LoRA checkpoint**: the trained `pytorch_lora_weights.safetensors`.
 
@@ -165,7 +192,7 @@ Topology env vars (all optional; single-node defaults shown):
 ### Guidance modes
 
 - `WAN_VALIDATION_INNER_GUIDANCE=1` → chained (inner) CFG over text + flow + seg, controlled by
-  `WAN_VALIDATION_{GUIDANCE,FLOW_GUIDANCE,SEG_GUIDANCE}_SCALE`.
+`WAN_VALIDATION_{GUIDANCE,FLOW_GUIDANCE,SEG_GUIDANCE}_SCALE`.
 - `WAN_VALIDATION_INNER_GUIDANCE=0` → standard text-only CFG (`--no-validation_enable_inner_guidance`).
 
 ### Benchmarks
