@@ -1,13 +1,18 @@
 # VPT: Enhancing Video Physical Consistency via Role-aware Joint Training and Modality-decoupled Denoising
 
-> **Guangting Zheng**, **Haojing Chen**, Hao Li, Jingtao Zhang, Zhen Yang, Xiaosong Jia, Xue Yang, Shaofeng Zhang, Yanyong Zhang
+[![Code](https://img.shields.io/badge/Code-GitHub-black?logo=github)](https://github.com/Tom-zgt/VPT)
+[![Paper](https://img.shields.io/badge/Paper-arXiv-b31b1b?logo=arxiv)](https://github.com/Tom-zgt/VPT)
+[![Project Page](https://img.shields.io/badge/Project-Page-2563eb)](docs/index.html)
+![License](https://img.shields.io/badge/License-Apache%202.0-green)
+
+> **Guangting Zheng**\*, **Haojing Chen**\*, Hao Li, Jingtao Zhang, Zhen Yang, Xiaosong Jia, Xue Yang, Shaofeng Zhang, Yanyong Zhang
 >
-> 1USTC   2UESTC   3Fudan University   4Georgia Tech   5SJTU
->
-> Equal contribution
+> <sup>1</sup>USTC &nbsp; <sup>2</sup>UESTC &nbsp; <sup>3</sup>Fudan University &nbsp; <sup>4</sup>Georgia Tech &nbsp; <sup>5</sup>SJTU &nbsp; (\*equal contribution)
 
 **VPT** is a fine-tuning framework that improves the *physical consistency* of pretrained
 video diffusion models (e.g. Wan2.1-T2V) while preserving their visual quality.
+
+![VPT vs. Wan2.1-1.3B vs. VideoJAM](assets/teaser.gif)
 
 *"A wine bottle pours a red blend into a glass." VPT produces more physically consistent motion and interactions.*
 
@@ -33,35 +38,40 @@ constraints; and **cross-step auto-guidance** to further strengthen physical dyn
 VPT achieves relative gains of **39.4% in VideoPhy SA** and **17.9% in VideoPhy PC** over
 Wan2.1-T2V-1.3B, with consistent improvements on VideoPhy-2.
 
+## Method
+
+| Component | Description |
+| --- | --- |
+| **Role-aware joint training** | Groups scene entities into agents / controlled objects / passive objects / background so different physical roles are modeled explicitly. |
+| **Modality-decoupled denoising** | Visual and auxiliary (flow / seg) channels get *independent* noise levels, avoiding capacity conflicts and preserving the visual prior. |
+| **Loss-weight decay** | The auxiliary-loss weight decays over training, making auxiliary signals soft constraints and mitigating recursive inference error. |
+| **Cross-step auto-guidance** | Inference-time guidance over auxiliary streams that strengthens physical dynamics with no extra training. |
+
 ## Results
 
 ### VideoPhy & VideoPhy-2
 
 **Overall** Semantic Adherence (SA) and Physical Commonsense (PC). VPT is applied on top of both the 1.3B and 14B Wan2.1-T2V backbones.
 
-
-| Model            | VideoPhy SA | VideoPhy PC | VideoPhy-2 SA | VideoPhy-2 PC |
-| ---------------- | ----------- | ----------- | ------------- | ------------- |
-| Wan2.1-T2V-1.3B  | 47.7        | 21.2        | 19.3          | 53.7          |
-| + Full Fine-tune | 45.1        | 20.9        | 18.9          | 53.6          |
-| + VideoJAM       | 49.1        | 22.1        | 20.6          | 54.0          |
-| **+ VPT (Ours)** | **66.5**    | **25.0**    | **22.5**      | **55.1**      |
-| Wan2.1-T2V-14B   | 56.1        | 23.2        | 21.9          | 52.9          |
-| + Full Fine-tune | 62.1        | 21.5        | 20.7          | 54.0          |
-| **+ VPT (Ours)** | **67.7**    | **30.0**    | **23.3**      | **59.9**      |
-
+| Model | VideoPhy SA | VideoPhy PC | VideoPhy-2 SA | VideoPhy-2 PC |
+| --- | :---: | :---: | :---: | :---: |
+| Wan2.1-T2V-1.3B | 47.7 | 21.2 | 19.3 | 53.7 |
+| &nbsp;&nbsp;+ Full Fine-tune | 45.1 | 20.9 | 18.9 | 53.6 |
+| &nbsp;&nbsp;+ VideoJAM | 49.1 | 22.1 | 20.6 | 54.0 |
+| &nbsp;&nbsp;**+ VPT (Ours)** | **66.5** | **25.0** | **22.5** | **55.1** |
+| Wan2.1-T2V-14B | 56.1 | 23.2 | 21.9 | 52.9 |
+| &nbsp;&nbsp;+ Full Fine-tune | 62.1 | 21.5 | 20.7 | 54.0 |
+| &nbsp;&nbsp;**+ VPT (Ours)** | **67.7** | **30.0** | **23.3** | **59.9** |
 
 ### VBench
 
 Wan2.1-T2V-1.3B backbone, official **raw** prompts (no prompt enhancement), 81 frames @ 480×832, 16 FPS.
 
-
-| Metric          | Wan2.1-1.3B | + Full FT | + VideoJAM | + VPT (Ours) |
-| --------------- | ----------- | --------- | ---------- | ------------ |
-| **Total Score** | 76.93       | 78.71     | 78.76      | **79.58**    |
-| Quality Score   | 79.81       | 81.26     | 81.18      | **83.25**    |
-| Semantic Score  | 65.43       | 68.47     | 69.08      | 64.86        |
-
+| Metric | Wan2.1-1.3B | + Full FT | + VideoJAM | + VPT (Ours) |
+| --- | :---: | :---: | :---: | :---: |
+| **Total Score** | 76.93 | 78.71 | 78.76 | **79.58** |
+| Quality Score | 79.81 | 81.26 | 81.18 | **83.25** |
+| Semantic Score | 65.43 | 68.47 | 69.08 | 64.86 |
 
 VPT achieves the best total and quality scores. See the paper for the full per-dimension breakdown and ablations.
 
@@ -106,7 +116,7 @@ train.py → finetrainers SFT trainer → _validate()
 
 Role/flow/seg (triple-discrete) timestep conditioning is enabled **automatically**:
 `CustomWanPipeline` detects `cond_proj` weights in the LoRA checkpoint and swaps in
-`WanTripleDiscreteTimeTextImageEmbedding`. No `multi_timestep_`* flag is needed at inference.
+`WanTripleDiscreteTimeTextImageEmbedding`. No `multi_timestep_*` flag is needed at inference.
 
 > **Caveat:** even with `--train_steps 1`, the trainer still initializes the training
 > dataloader (`--dataset_config training.json`) and consumes one batch to load the
@@ -124,12 +134,26 @@ pip install -U "transformers>=4.49.0,<5.0.0" "accelerate>=0.34.0" \
 # optional: pip install -e .
 ```
 
+## Pretrained checkpoints
+
+To run inference you need the base Wan model plus our trained VPT LoRA:
+
+- **Base model**: `Wan-AI/Wan2.1-T2V-1.3B-Diffusers` (HuggingFace repo id or a local dir).
+- **VPT LoRA (ours)**: the trained `pytorch_lora_weights.safetensors`.
+
+| Model | Backbone | Download |
+| --- | --- | --- |
+| VPT LoRA | Wan2.1-T2V-1.3B | **[待填 / TODO link]** |
+| VPT LoRA | Wan2.1-T2V-14B | **[待填 / TODO link]** |
+
+Download the LoRA and pass its path to `infer.sh` / `train.sh` via `LORA_WEIGHTS_PATH`.
+
 ## Dataset & data preparation
 
 VPT is fine-tuned on the **[WISA-80K](https://huggingface.co/datasets/qihoo360/WISA-80K)**
 dataset. Download the clips from:
 
-[https://huggingface.co/datasets/qihoo360/WISA-80K/tree/dddbd5683581c2ebf0b463e2b1c3342b2094bfb3/data/videos](https://huggingface.co/datasets/qihoo360/WISA-80K/tree/dddbd5683581c2ebf0b463e2b1c3342b2094bfb3/data/videos)
+<https://huggingface.co/datasets/qihoo360/WISA-80K/tree/dddbd5683581c2ebf0b463e2b1c3342b2094bfb3/data/videos>
 
 ```bash
 huggingface-cli download qihoo360/WISA-80K --repo-type dataset \
@@ -183,11 +207,8 @@ OUTPUT_DIR=./outputs/vpt_train \
 bash examples/training/sft/wan/3dgs_dissolve/train.sh
 ```
 
-Internally `train.sh` launches `torchrun --nproc_per_node=8 --nnodes=4
---node_rank=${NODE_RANK} --master_addr=${MASTER_ADDR} --master_port=${MASTER_PORT}
-train.py ...` with `--dp_degree = NNODES × NPROC_PER_NODE`. Trained LoRA weights land in
-`${OUTPUT_DIR}/.../<step>/pytorch_lora_weights.safetensors`; pass that to `infer.sh` via
-`LORA_WEIGHTS_PATH`.
+Trained LoRA weights land in `${OUTPUT_DIR}/.../<step>/pytorch_lora_weights.safetensors`;
+pass that to `infer.sh` via `LORA_WEIGHTS_PATH`.
 
 ## Inference
 
@@ -206,24 +227,16 @@ bash examples/training/sft/wan/3dgs_dissolve/infer.sh
 ### Multi-node (standard `torchrun`)
 
 Run `infer.sh` on **every** node with the same `MASTER_ADDR` / `MASTER_PORT` and a distinct
-`NODE_RANK`. Example — 4 nodes × 8 GPUs:
+`NODE_RANK`. Example — 2 nodes × 8 GPUs:
 
 ```bash
-# on every node (change NODE_RANK to 0,1,2,3):
-NNODES=4 NODE_RANK=0 NPROC_PER_NODE=8 \
+# on every node (change NODE_RANK to 0,1):
+NNODES=2 NODE_RANK=0 NPROC_PER_NODE=8 \
 MASTER_ADDR=10.0.0.1 MASTER_PORT=29500 \
 BENCHMARK=videophy \
 LORA_WEIGHTS_PATH=/path/to/pytorch_lora_weights.safetensors \
 SAVE_VIDEOS_DIR=./outputs/videophy \
 bash examples/training/sft/wan/3dgs_dissolve/infer.sh
-```
-
-Internally `infer.sh` launches:
-
-```bash
-torchrun --nproc_per_node=8 --nnodes=4 --node_rank=${NODE_RANK} \
-         --master_addr=${MASTER_ADDR} --master_port=${MASTER_PORT} \
-         train.py ...
 ```
 
 Topology env vars (all optional; single-node defaults shown):
@@ -233,8 +246,9 @@ Topology env vars (all optional; single-node defaults shown):
 ### Guidance modes
 
 - `WAN_VALIDATION_INNER_GUIDANCE=1` → chained (inner) CFG over text + flow + seg, controlled by
-`WAN_VALIDATION_{GUIDANCE,FLOW_GUIDANCE,SEG_GUIDANCE}_SCALE`.
-- Set `FLOW_GUIDANCE,SEG_GUIDANCE to 0 ->`
+  `WAN_VALIDATION_{GUIDANCE,FLOW_GUIDANCE,SEG_GUIDANCE}_SCALE`. Setting
+  `WAN_VALIDATION_FLOW_GUIDANCE_SCALE=0` and `WAN_VALIDATION_SEG_GUIDANCE_SCALE=0` keeps only
+  the text CFG term inside the chained formulation (the setting used for the paper's VideoPhy numbers).
 - `WAN_VALIDATION_INNER_GUIDANCE=0` → standard text-only CFG (`--no-validation_enable_inner_guidance`).
 
 ### Benchmarks
@@ -242,6 +256,43 @@ Topology env vars (all optional; single-node defaults shown):
 `BENCHMARK` selects the validation prompt file: `videophy | videophy2 | vbench`.
 This repo only **generates** videos; score them with the separate benchmark tools
 (VideoPhy / VideoPhy2 / VBench), which are intentionally not bundled here.
+
+## Reproducing the paper results
+
+The **VideoPhy** and **VideoPhy-2** numbers in the paper are produced with **guidance scale
+2.2** (inner CFG, flow/seg scales = 0) and evaluated on **16 GPUs (2 nodes × 8)**.
+
+```bash
+# run on BOTH nodes (change NODE_RANK to 0 and 1), once for BENCHMARK=videophy and once for =videophy2:
+NNODES=2 NODE_RANK=0 NPROC_PER_NODE=8 \
+MASTER_ADDR=10.0.0.1 MASTER_PORT=29500 \
+BENCHMARK=videophy \
+LORA_WEIGHTS_PATH=/path/to/vpt_lora/pytorch_lora_weights.safetensors \
+SAVE_VIDEOS_DIR=./outputs/videophy_gs2.2 \
+WAN_VALIDATION_GUIDANCE_SCALE=2.2 \
+WAN_VALIDATION_FLOW_GUIDANCE_SCALE=0 \
+WAN_VALIDATION_SEG_GUIDANCE_SCALE=0 \
+WAN_VALIDATION_INNER_GUIDANCE=1 \
+bash examples/training/sft/wan/3dgs_dissolve/infer.sh
+```
+
+Then score the generated videos with the official
+[VideoPhy](https://github.com/Hritikbansal/videophy) / VideoPhy-2 evaluators.
+
+> ⚠️ **Important — VideoPhy / VideoPhy-2 are noisy benchmarks.** The SA/PC scores are
+> sensitive to the sampling setup, so numbers are **not** perfectly deterministic:
+>
+> - **GPU count matters.** Because generation is sharded per rank (per-rank seeding), a
+>   **16-GPU** run and an **8-GPU** run produce different videos for the same prompts, and
+>   in our experience **16-GPU evaluation scores noticeably higher than 8-GPU**. All paper
+>   numbers use the 16-GPU (2×8) setup above.
+> - **Seed matters.** Different `--seed` values also shift the scores.
+>
+> For exact reproducibility we release the **videos we generated** from the two benchmarks'
+> prompts (used to compute the reported numbers):
+>
+> - VideoPhy generated videos: **[待填 / TODO link]**
+> - VideoPhy-2 generated videos: **[待填 / TODO link]**
 
 ## Project page
 
@@ -264,7 +315,8 @@ comparisons and reconstruction demos. Open it locally, or enable **GitHub Pages*
 ## Acknowledgements
 
 Built on [Wan2.1](https://github.com/Wan-Video/Wan2.1) and the
-[finetrainers](https://github.com/a-r-r-o-w/finetrainers) framework. We thank the authors of VideoJam, VideoREPA, VideoPhy, and VBench for their benchmarks and baselines.
+[finetrainers](https://github.com/a-r-r-o-w/finetrainers) framework. We thank the authors of
+VideoJAM, VideoREPA, VideoPhy, and VBench for their benchmarks and baselines.
 
 ## License
 
