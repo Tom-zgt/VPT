@@ -69,24 +69,13 @@ On the 1.3B backbone, VPT lifts VideoPhy Overall SA 47.7 → 66.5 (**+39.4% rel.
 
 Wan2.1-T2V-1.3B backbone, official **raw** prompts (no prompt enhancement), 81 frames @ 480×832, 16 FPS.
 
-| Dimension | Wan2.1-1.3B | + Full FT | + VideoJAM | + VPT (Ours) |
+| Metric | Wan2.1-1.3B | + Full FT | + VideoJAM | + VPT (Ours) |
 | --- | :---: | :---: | :---: | :---: |
 | **Total Score** | 76.93 | 78.71 | 78.76 | **79.58** |
 | Quality Score | 79.81 | 81.26 | 81.18 | **83.25** |
 | Semantic Score | 65.43 | 68.47 | 69.08 | 64.86 |
-| Subject Consistency | 91.83 | 93.59 | 91.51 | 92.65 |
-| Background Consistency | 94.71 | 95.81 | 96.01 | **97.27** |
-| Temporal Flickering | 99.17 | 99.36 | 99.13 | 98.64 |
-| Motion Smoothness | 96.51 | 97.21 | 96.05 | **97.85** |
-| Dynamic Degree | 65.00 | 54.08 | 73.88 | 70.83 |
-| Object Class | 76.09 | 79.90 | 79.22 | 73.43 |
-| Color | 89.93 | 88.57 | 88.92 | 86.99 |
-| Human Action | 74.60 | 78.98 | 79.20 | 74.80 |
-| Multiple Objects | 53.66 | 58.20 | 59.66 | 51.92 |
-| Scene | 20.03 | 28.55 | 28.34 | 20.13 |
-| Spatial Relationship | 62.37 | 63.31 | 66.17 | **73.35** |
 
-VPT achieves the best overall and quality scores, with clear gains in background consistency, motion smoothness, and spatial relationship — i.e. more stable dynamics and better object-relation modeling. See the paper for full tables and ablations.
+VPT achieves the best total and quality scores. See the paper for the full per-dimension breakdown and ablations.
 
 ## Repository layout
 
