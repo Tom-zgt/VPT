@@ -1,7 +1,7 @@
 # VPT: Enhancing Video Physical Consistency via Role-aware Joint Training and Modality-decoupled Denoising
 
 [Code](https://github.com/Tom-zgt/VPT)
-[Paper](https://github.com/Tom-zgt/VPT)
+[Paper]([http://arxiv.org/abs/2607.04653](http://arxiv.org/abs/2607.04653))
 [Project Page](docs/index.html)
 License
 
